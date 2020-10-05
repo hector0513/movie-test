@@ -1,0 +1,65 @@
+version: "3.1"
+services:
+
+  app:
+    build:
+      context: ./node
+    container_name: my-app
+    env_file: ./.env
+    volumes:
+      - ./node:/usr/src/app
+    ports:
+      - ${PORT_APP}
+    environment:
+      "NODE_ENV": "development"
+      "PORT": "${PORT_APP}"
+      "MYSQL_DATABASE": "${DB_DATABASE}"
+      "MYSQL_ROOT_PASSWORD": "${DB_PASSWORD}"
+    networks:
+      - docker_xxx
+  test:
+    build:
+      context: ./node
+    container_name: my-app
+    env_file: ./.env
+    volumes:
+      - ./node:/usr/src/app
+    ports:
+      - ${PORT_TEST}
+    environment:
+      "NODE_ENV": "test"
+      "PORT": "${PORT_TEST}"
+      "MYSQL_DATABASE": "${DB_DATABASE_TEST}"
+      "MYSQL_ROOT_PASSWORD": "${DB_PASSWORD}"    
+    networks:
+      - docker_xxx
+  mysql:
+    env_file: ./.env
+    image: mysql
+    container_name: mysql
+    volumes:
+      - ./mysql:/var/lib/mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      "MYSQL_DATABASE": "${DB_DATABASE}"
+      "MYSQL_ROOT_PASSWORD": "${DB_PASSWORD}"
+    networks:
+      - docker_xxx
+  mysql_test:
+    env_file: ./.env
+    image: mysql
+    container_name: mysql_test
+  
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      "MYSQL_DATABASE": "${DB_DATABASE_TEST}"
+      "MYSQL_ROOT_PASSWORD": "${DB_PASSWORD}"
+    networks:
+      - docker_xxx    
+networks:
+  docker_xxx:
+    driver: bridge
